@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Parameters:
+  HostedZoneID:
+    Type: String
+    Description: "Hosted Zone ID to restrict access."
+    Default: ""
+Conditions:
+  UseHostedZoneID: !Not [!Equals [!Ref HostedZoneID, '']]
+Resources: 
+  DynamicDNSRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      RoleName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-Role-${HostedZoneID}", "Dynamic-DNS-Role"]
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "ec2.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+  DynamicDNSPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties: 
+      PolicyName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-Policy-${HostedZoneID}", "Dynamic-DNS-Policy"]
+      PolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Action: 
+              - "route53:GetHostedZone"
+              - "route53:ChangeResourceRecordSets"
+              - "route53:ListResourceRecordSets"
+            Resource: !If [UseHostedZoneID, !Sub "arn:aws:route53:::hostedzone/${HostedZoneID}", "*"]
+          - 
+            Effect: "Allow"
+            Action: 
+              - "route53:ListHostedZones"
+            Resource: "*"
+      Roles: 
+        - 
+          Ref: "DynamicDNSRole"
+  RootInstanceProfile: 
+    Type: "AWS::IAM::InstanceProfile"
+    Properties:
+      InstanceProfileName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-${HostedZoneID}", "Dynamic-DNS"]
+      Path: "/"
+      Roles: 
+        - 
+          Ref: "DynamicDNSRole"
