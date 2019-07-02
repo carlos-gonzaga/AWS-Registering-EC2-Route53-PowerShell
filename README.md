@@ -33,7 +33,9 @@ Principal objetivo é economizar com o custo de ElasticIP equanto sua instância
     ```
 
     **Criação da Role via Cloudformation**
-    > aws cloudformation create-stack --stack-name "*Dynamic-DNS-Role*" --template-body file://Role/dynamic-dns-role.yml --parameters HostedZoneID="*Z5JUC1T2SZUY7Y*"
+    ```bash
+    aws cloudformation create-stack --stack-name "Dynamic-DNS-Role" --template-body file://Role/dynamic-dns-role.yml --parameters HostedZoneID="Z5JUC1T2SZUY7Y"
+    ```
 
 2. Associe a policy a sua instância EC2 para que a mesma tenha permissão\
     *Caso a instância já exista:*\
