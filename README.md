@@ -1,4 +1,4 @@
-# Registrando Servidor no Route53 ao Iniciar a instância EC2 na AWS
+# Registrando IP do Servidor Windows no Route53 ao Iniciar a instância EC2 na AWS
 
 
 ### Objetivo
