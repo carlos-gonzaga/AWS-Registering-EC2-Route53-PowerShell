@@ -7,7 +7,7 @@ Esse script tem a finalidade de fazer com que sua EC2 Windows se registre no Rou
 
 Principal objetivo é economizar com o custo de ElasticIP equanto sua instância estiver desligada.
 
-> Para instâncias Windows Server 2016 ou superior é possível adicionar o script na configuração de User Data em Advanced Details no terceiro passo de criação da instância EC2, copie o script PowerShell-Script/User-Data.ps1 e edite conforme passo 4 abaixo, e cole na configuração de User Data da instância, com isso, os passos 3 em diante não são necessários.
+> Para instâncias Windows Server 2016 ou superior é possível adicionar o script na configuração de User Data em Advanced Details no terceiro passo de criação da instância EC2, copie o script PowerShell-Script/User-Data.ps1, edite conforme passo 4 abaixo, e cole na configuração de User Data da instância, com isso, os passos 3 em diante não são necessários.
 
 
 
