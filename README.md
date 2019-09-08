@@ -7,12 +7,17 @@ Esse script tem a finalidade de fazer com que sua EC2 Windows se registre no Rou
 
 Principal objetivo é economizar com o custo de ElasticIP equanto sua instância estiver desligada.
 
+```
+Para instâncias Windows Server 2016 ou superior é possível adicionar o script na configuração de User Data em Advanced Details no terceiro passo de criação da instância EC2, copie o script PowerShell-Script/User-Data.ps1 e edite conforme passo 4 abaixo, e cole na configuração de User Data da instância, com isso, os passos 3 em diante não são necessários.
+```
+
+
 
 ### Requisitos
 
 - PowerShell v3.0
 - AWS CLI
-- A instância deve ser criada com a opção **Auto-assign Public IP**, opção seleciona no Step 3 de criação de uma EC2.
+- A instância deve ser criada com a opção **Auto-assign Public IP**, selecione essa opção no Step 3 de criação da EC2.
     Caso a instância não esteja com essa configuração, necessário recriar a instância com essa opção habilitada
 - Entrada DNS no Route53 a qual o Servidor será vinculado
 
@@ -34,18 +39,21 @@ Principal objetivo é economizar com o custo de ElasticIP equanto sua instância
 
     **Criação da Role via Cloudformation**
     ```bash
-    aws cloudformation create-stack --stack-name "Dynamic-DNS-Role" --template-body file://Role/dynamic-dns-role.yml --parameters HostedZoneID="Z5JUC1T2SZUY7Y"
+    aws cloudformation create-stack --stack-name "Update-Route53-Role" --template-body file://Role/Update-Route53-Role.yml --parameters ParameterKey=HostedZoneID,ParameterValue="XXXXXXXXXXXXXX",ParameterKey=DomainName,ParameterValue="mydomain"
     ```
+
 
 2. Associe a policy a sua instância EC2 para que a mesma tenha permissão\
     *Caso a instância já exista:*\
     No Console da AWS no serviço EC2, selecione a instância => Actions => Instance Settings => Attach/Replace IAM Role => Selecione Dynamic-DNS
 
     *Na criação da Instância:*\
-    No Step 3: Configure Instance Details => Em IAM Role => Selecione a Role Dynamic-DNS
+    No Step 3: Configure Instance Details => Em IAM Role => Selecione a Role Update-Route53-Domain
+
 
 3. Instale o AWS CLI na instância criada, caso ainda não esteje instalado\
     https://s3.amazonaws.com/aws-cli/AWSCLI64.msi
+
 
 4. Copie o Script em **PowerShell-Script/route53-set-public-ip.ps1** para o servidor e altere as variáveis com as informações do seu Domínio e Servidor
     
@@ -60,6 +68,7 @@ ServerName    |  Verifique o nome do servidor, comando hostname no prompt de com
 
 > A configuração de ServerName foi adicionada para que caso você crie uma AMI da instância com essas configurações, a configuração de DNS não será alterada indevidamente caso um novo servidor seja criado com base nessa AMI
 
+
 5. Crie o uma tarefa no Agendador de Tarefa do Windows para executar o script toda vez que o servidor ligar
     - Abra o Task Scheduler
     - Action => Create Task...
@@ -68,6 +77,7 @@ ServerName    |  Verifique o nome do servidor, comando hostname no prompt de com
     - Na aba Triggers => New => Em Begin the Task selecione *At Startup* => Ok
     - Na aba Actions => New => Em Program/script adicione o caminho do PowerShell "*C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe*" => Em Add Arguments adicine o caminho do Script "*-Command C:\scripts\route53-set-public-ip.ps1 -Noninteractive*" => OK
     - OK, Salve a task
+
 
 6. Crie a Entrada DNS, caso não exista e teste
     - A entrada DNS deverá existir no Route53

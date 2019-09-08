@@ -4,13 +4,17 @@ Parameters:
     Type: String
     Description: "Hosted Zone ID to restrict access."
     Default: ""
+  DomainName:
+    Type: String
+    Description: "Domain Name to set in Role Name."
+    Default: ""
 Conditions:
   UseHostedZoneID: !Not [!Equals [!Ref HostedZoneID, '']]
 Resources: 
   DynamicDNSRole: 
     Type: "AWS::IAM::Role"
     Properties: 
-      RoleName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-Role-${HostedZoneID}", "Dynamic-DNS-Role"]
+      RoleName: !If [UseHostedZoneID, !Sub "Update-Route53-Role-${DomainName}", "Update-Route53-Role"]
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -25,7 +29,7 @@ Resources:
   DynamicDNSPolicy:
     Type: "AWS::IAM::Policy"
     Properties: 
-      PolicyName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-Policy-${HostedZoneID}", "Dynamic-DNS-Policy"]
+      PolicyName: !If [UseHostedZoneID, !Sub "Update-Route53-Policy-${DomainName}", "Update-Route53-Policy"]
       PolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -47,7 +51,7 @@ Resources:
   RootInstanceProfile: 
     Type: "AWS::IAM::InstanceProfile"
     Properties:
-      InstanceProfileName: !If [UseHostedZoneID, !Sub "Dynamic-DNS-${HostedZoneID}", "Dynamic-DNS"]
+      InstanceProfileName: !If [UseHostedZoneID, !Sub "Update-Route53-${DomainName}", "Update-Route53"]
       Path: "/"
       Roles: 
         - 
